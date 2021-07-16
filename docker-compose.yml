@@ -1,0 +1,35 @@
+version: '3.7'
+
+services:
+  app:
+    build:
+      dockerfile: ./images/php-apache.dockerfile
+    ports:
+      - 5678:80
+    working_dir: /var/www
+    volumes:
+      - ./volumes/www:/var/www/html
+    configs:
+      - source: apache-vhosts
+        target: /etc/apache2/sites-available/000-default.conf
+      - source: php-ini
+        target: /usr/local/etc/php/conf.d/local.ini
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: secret
+      MYSQL_DB: calisthenics
+
+  mysql:
+    image: mariadb:10.6.3
+    volumes:
+      - ./volumes/database:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: calisthenics
+
+configs:
+  apache-vhosts:
+    file: ./apache/http-vhosts.conf
+  php-ini:
+    file: ./php/local.ini
